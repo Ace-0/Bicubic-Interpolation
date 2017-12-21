@@ -8,16 +8,14 @@ def PSNR(img1, img2):
     if img1.shape != img2.shape:
         raise Exception("The sizes of two images cannot be different")
     if img1.ndim == 3:
-        ycbcr1 = cv2.cvtColor(img1, cv2.COLOR_BGR2YCR_CB)
-        ycbcr2 = cv2.cvtColor(img2, cv2.COLOR_BGR2YCR_CB)
-    img1 = np.ndarray((img1.size[1], img1.size[0], 3), 'u1', ycbcr1.tostring())
-    img2 = np.ndarray((img2.size[1], img2.size[0], 3), 'u1', ycbcr2.tostring())
+        img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2YCR_CB)
+        img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2YCR_CB)
     img1 = img1[:,:,0].astype(np.float)
     img2 = img2[:,:,0].astype(np.float)
     mse = get_mse(img1, img2)
     if mse == 0:
         return float('inf')
-    level = 255
+    level = 255 - 16
     psnr = 20 * math.log(level / math.sqrt(mse), 10)
     return psnr
 
@@ -31,15 +29,13 @@ def get_mse(img1, img2):
 def SSIM(img1, img2):
     if img1.shape != img2.shape:
         raise Exception("The sizes of two images cannot be different")
-    if np.asanyarray(img1).ndim == 3:
-        ycbcr1 = img1.convert('YCbCr')
-        ycbcr2 = img2.convert('YCbCr')
-    img1 = np.ndarray((img1.size[1], img1.size[0], 3), 'u1', ycbcr1.tostring())
-    img2 = np.ndarray((img2.size[1], img2.size[0], 3), 'u1', ycbcr2.tostring())
+    if img1.ndim == 3:
+        img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2YCR_CB)
+        img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2YCR_CB)
     img1 = img1[:,:,0].astype(np.float)
     img2 = img2[:,:,0].astype(np.float)
     k = [0.01, 0.03];
-    level = 255;
+    level = 255 - 16;
     window = gauss_2d((11, 11), 1.5)
     window /= np.sum(window)
 

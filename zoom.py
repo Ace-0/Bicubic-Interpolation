@@ -2,17 +2,17 @@ import numpy as np
 import math
 
 # todo grey
-def bicubic(input_img, width, height):
-    (src_width, src_height, depth) = input_img.shape
+def bicubic(input_img, height, width):
+    (src_height, src_width, depth) = input_img.shape
     in_img = input_img.astype(np.float)
-    out_img = np.zeros((width, height, 3));
-    ratio_w = float(width) / float(src_width)
+    out_img = np.zeros((height, width, 3));
     ratio_h = float(height) / float(src_height)
-    for i in range(width):
-        for j in range(height):
-            print str(i) + '/' + str(width - 1) + ' ' + str(j) + '/' + str(height - 1)
-            x = i / ratio_w
-            y = j / ratio_h
+    ratio_w = float(width) / float(src_width)
+    for i in range(height):
+        for j in range(width):
+            print str(i) + '/' + str(height - 1) + ' ' + str(j) + '/' + str(width - 1)
+            x = i / ratio_h
+            y = j / ratio_w
             x_int = int(math.floor(x))
             y_int = int(math.floor(y))
 
@@ -21,7 +21,7 @@ def bicubic(input_img, width, height):
                 for y_diff in range(-1, 3):
                     neib_x = x_int + x_diff
                     neib_y = y_int + y_diff
-                    if neib_x < 0 or neib_x >= src_width or neib_y < 0 or neib_y >= src_height:
+                    if neib_x < 0 or neib_x >= src_height or neib_y < 0 or neib_y >= src_width:
                         continue
                     out_img[i, j, :] += in_img[neib_x, neib_y, :] * get_weight(x - neib_x) * get_weight(y - neib_y)
 
@@ -39,22 +39,21 @@ def get_weight(distance):
         return 0
 
 
-def get_prediction(x, y, pixel):
-    width = len(pixel)
-    height = len(pixel[0])
-    left_pred = right_pred = up_pred = down_pred = []
-    for k in range(height + 1):
-        r = 3 * pixel[0, k][0] - 3 * pixel[1, k][0] + pixel[2, k][0]
-        g = 3 * pixel[0, k][1] - 3 * pixel[1, k][1] + pixel[2, k][1]
-        b = 3 * pixel[0, k][2] - 3 * pixel[1, k][2] + pixel[2, k][2]
-        left_pred.append((r, g, b))
-    for k in range(height + 1):
-        r = 3 * pixel[width - 1, k][0] - 3 * pixel[width - 2, k][0] + pixel[width - 3, k][0]
-        g = 3 * pixel[width - 1, k][1] - 3 * pixel[width - 2, k][1] + pixel[width - 3, k][1]
-        b = 3 * pixel[width - 1, k][2] - 3 * pixel[width - 2, k][2] + pixel[width - 3, k][2]
-        right_pred.append((r, g, b))
+def get_padding(in_img, height, width):
+    top = np.zeros((width, 3));
+    down = np.zeros((width, 3));
+    left = np.zeros((height, 3));
+    right = np.zeros((height, 3));
 
-    if i == -1 and j == -1:
-        return 3 * pixel[0, -1] - 3 * pixel[1, -1] + pixel[2, -1]
-    elif i == -1 and j == height:
-        return 3 * pixel[0, height - 1] - 3 * pixel[1, -1] + pixel[2, -1]
+    for k in range(height):
+        top[k, :] = 3 * in_img[0, k, :] - 3 * in_img[1, k, :] + in_img[2, k, :]
+        down[k, :] = 3 * in_img[height - 1, k, :] - 3 * in_img[height - 2, k, :] + in_img[height - 3, k, :]
+        left[k, :] = 3 * in_img[k, 0, :] - 3 * in_img[k, 1, :] + in_img[k, 2, :]
+        right[k, :] = 3 * in_img[k - width - 1, k, :] - 3 * in_img[k, width - 2, :] + in_img[k, width - 3, :]
+    corner = np.zeros((4, 3))
+    # top_left, down_left, top_right, down_right
+    corner[0] = 3 * left[0, :] - 3 * left[1, :] + left[2, :]
+    corner[1] = 3 * left[height - 1, :] - 3 * left[height - 2, :] + left[height - 3, :]
+    corner[2] = 3 * right[0, :] - 3 * right[1, :] + right[2, :]
+    corner[3] = 3 * right[width - 1, :] - 3 * right[width - 2, :] + right[width - 3, :]
+    return top, down, left, right, corner
