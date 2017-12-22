@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-# todo grey
+
 def bicubic(input_img, width, height):
     (src_height, src_width, depth) = input_img.shape
     in_img = input_img.astype(np.float)
@@ -19,13 +19,11 @@ def bicubic(input_img, width, height):
             x_int = int(math.floor(x))
             y_int = int(math.floor(y))
 
-            r = g = b = 0.0
             for x_diff in range(-1, 3):
                 for y_diff in range(-1, 3):
                     neib_x = x_int + x_diff
                     neib_y = y_int + y_diff
-                    # if neib_x < 0 or neib_x >= src_height or neib_y < 0 or neib_y >= src_width:
-                    #     continue
+
                     if neib_x < 0:
                         if neib_y < 0:
                             out_img[i, j, :] += corner[0, :] * get_weight(x - neib_x) * get_weight(y - neib_y)
@@ -46,7 +44,6 @@ def bicubic(input_img, width, height):
                         out_img[i, j, :] += right[neib_x, :] * get_weight(x - neib_x) * get_weight(y - neib_y)
                     else:
                         out_img[i, j, :] += in_img[neib_x, neib_y, :] * get_weight(x - neib_x) * get_weight(y - neib_y)
-                    #out_img[i, j, :] += in_img[neib_x, neib_y, :] * get_weight(x - neib_x) * get_weight(y - neib_y)
 
     out_img = np.around(out_img)
     return out_img
