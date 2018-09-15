@@ -2,7 +2,7 @@
 
 Simple implementation of Bicubic-Interpolation
 
-Reference Paper: [Cubic convolution interpolation for digital image processing](./doc/Cubic convolution interpolation for digital image processing.pdf)
+Reference Paper: [Cubic convolution interpolation for digital image processing](./doc/Cubic_convolution_interpolation_for_digital_image_processing.pdf)
 
 ### Example
 
